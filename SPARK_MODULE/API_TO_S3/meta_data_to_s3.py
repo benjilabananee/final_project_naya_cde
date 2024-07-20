@@ -29,6 +29,7 @@ df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "course-kafka:9092") \
     .option("subscribe", "stock_meta_data_to_s3_test") \
+    .option("startingOffsets", "earliest") \
     .load()
 
 # Deserialize JSON data and apply schema
@@ -39,8 +40,8 @@ df = df.selectExpr("CAST(value AS STRING) as json") \
 # Write to Parquet
 query = df.writeStream \
     .format("parquet") \
-    .option("path", "s3a://spark/stock/metadata") \
-    .option("checkpointLocation", "s3a://spark/stock/metadata/checkpoint") \
+    .option("path", "s3a://spark/stock/metadata2") \
+    .option("checkpointLocation", "s3a://spark/stock/metadata/checkpoint2") \
     .outputMode("append") \
     .start()
 
