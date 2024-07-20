@@ -42,7 +42,7 @@ query = df.writeStream \
     .format("parquet") \
     .option("path", "s3a://spark/stock/metadata2") \
     .option("checkpointLocation", "s3a://spark/stock/metadata/checkpoint2") \
-    .outputMode("append") \
+    .outputMode("appen.d") \
     .start()
 
 query.awaitTermination()
