@@ -1,30 +1,106 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import count
+from pyspark.sql.functions import from_json, col
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 
 # Initialize Spark Session
-spark = SparkSession \
-    .builder \
+spark = SparkSession.builder \
     .master("local[*]") \
-    .appName("S3ParquetProcessing") \
-    .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+    .appName('kafka_stock') \
+    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2') \
     .getOrCreate()
 
-# Read data from Parquet files in S3
-df = spark.read \
-    .format("parquet") \
-    .option("path", "s3a://spark/stock/transaction/transaction_date=2024-07-16") \
+# Read Parquet file from S3
+parquet_path = "s3a://spark/stock/metadata_filtered"
+parquet_df = spark.read.parquet(parquet_path)
+
+# Define schema for JSON data from Kafka
+schema = StructType([
+    StructField("T", StringType(), True),
+    StructField("v", IntegerType(), True),
+    StructField("vw", FloatType(), True),
+    StructField("o", FloatType(), True),
+    StructField("c", FloatType(), True),
+    StructField("h", FloatType(), True),
+    StructField("l", FloatType(), True),
+    StructField("n", IntegerType(), True),
+    StructField("date_time", DateType(), True)
+])
+
+# Set up Kafka source and read stream data
+kafka_df = spark.readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "course-kafka:9092") \
+    .option("subscribe", "stock_data_test") \
+    .option("startingOffsets", "earliest") \
     .load()
 
+# Parse JSON data from Kafka stream
+kafka_parsed_df = kafka_df.select(
+    from_json(col("value").cast("string"), schema).alias("parsed_value")
+)
 
+# Extract and rename columns from Kafka DataFrame
+kafka_extracted_df = kafka_parsed_df.select(
+    col("parsed_value.T").alias("kafka_ticker"),
+    col("parsed_value.v").alias("volume"),
+    col("parsed_value.vw").alias("volume_weighted"),
+    col("parsed_value.o").alias("open_price"),
+    col("parsed_value.c").alias("close_price"),
+    col("parsed_value.h").alias("high_price"),
+    col("parsed_value.l").alias("low_price"),
+    col("parsed_value.n").alias("number_of_transaction"),
+    col("parsed_value.date_time").alias("transaction_date")
+)
 
-print(df.count())
+# Rename columns in the Parquet DataFrame to avoid conflicts
+parquet_renamed_df = parquet_df.select(
+    col("ticker").alias("parquet_ticker"),
+    col("name"),
+    col("market"),
+    col("locale"),
+    col("primary_exchange"),
+    col("type"),
+    col("active"),
+    col("currency_name"),
+    col("cik")
+)
 
-# Optionally, write the result to S3 or another location
-df.write \
+# Join Kafka and Parquet DataFrames on ticker
+joined_df = kafka_extracted_df.join(
+    parquet_renamed_df,
+    kafka_extracted_df["kafka_ticker"] == parquet_renamed_df["parquet_ticker"],
+    "inner"
+)
+
+# Select final columns for the output
+result_df = joined_df.select(
+    parquet_renamed_df["name"],
+    parquet_renamed_df["market"],
+    parquet_renamed_df["locale"],
+    parquet_renamed_df["primary_exchange"],
+    parquet_renamed_df["type"],
+    parquet_renamed_df["active"],
+    parquet_renamed_df["currency_name"],
+    parquet_renamed_df["cik"],
+    kafka_extracted_df["kafka_ticker"].alias("ticker"),
+    kafka_extracted_df["volume"],
+    kafka_extracted_df["volume_weighted"],
+    kafka_extracted_df["open_price"],
+    kafka_extracted_df["close_price"],
+    kafka_extracted_df["high_price"],
+    kafka_extracted_df["low_price"],
+    kafka_extracted_df["number_of_transaction"],
+    kafka_extracted_df["transaction_date"]
+)
+
+# Write the result to S3 in Parquet format with checkpointing
+query = result_df.writeStream \
     .format("parquet") \
-    .option("path", "s3a://spark/stock/metadata_filtered") \
-    .mode("overwrite") \
-    .save()
+    .option("path", "s3a://spark/stock/transaction") \
+    .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
+    .partitionBy("transaction_date") \
+    .outputMode("append") \
+    .start()
 
-
-
+# Await termination of the query
+query.awaitTermination()
