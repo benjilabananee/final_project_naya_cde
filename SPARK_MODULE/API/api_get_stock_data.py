@@ -1,9 +1,11 @@
 from kafka import KafkaProducer
 import time,json,requests
 import configuration as c
-from datetime import datetime
+from datetime import datetime,timedelta,date
 
-url = c.stock_data_from_api
+base_url = c.stock_data_from_api
+end_date = datetime.now()  - timedelta(days=1) # Current date
+start_date = end_date - timedelta(days=5)  # 5 days ago
 
 params = {
     "adjusted": "true",
@@ -11,24 +13,30 @@ params = {
 }
 
 
-def fetch_and_produce_stock_data():
+def fetch_and_produce_stock_data(date):
+
+    date_string = date.strftime('%Y-%m-%d')
+    url = f"{base_url}{date_string}"
     response = requests.get(url=url,params=params)
-    
+
     if response.status_code == 200:
 
         parsed_data = json.loads(response.text) 
-        date_string = '2023-01-09'
+        
 
-        for row in parsed_data['results']:   
-                row['date_time'] = str(datetime.strptime(date_string, "%Y-%m-%d").date())
-                producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
-                producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
+        for row in parsed_data['results']: 
+                row['date_time'] = date_string
+                # producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
+                # producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
                 print(row)
     else:
         print(f"Failed to retrieve data: {response.status_code}")
 
 if __name__ == "__main__":
-    fetch_and_produce_stock_data()
+    current_date = start_date
+    while current_date <= end_date:
+        fetch_and_produce_stock_data(current_date)
+        current_date += timedelta(days=1)
 
 
   
