@@ -5,7 +5,7 @@ import  SPARK_MODULE.API.configuration as c
 from typing import List
 
 
-base_url = c.base_url_stock_meta_data + c.api_keys
+base_url = c.base_url_stock_meta_data + c.api_key
 max_requests_per_minute = 5
 
 
