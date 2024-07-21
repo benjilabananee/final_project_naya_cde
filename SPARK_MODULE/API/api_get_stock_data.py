@@ -26,8 +26,8 @@ def fetch_and_produce_stock_data(date):
 
         for row in parsed_data['results']: 
                 row['date_time'] = date_string
-                # producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
-                # producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
+                producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
+                producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
                 print(row)
     else:
         print(f"Failed to retrieve data: {response.status_code}")
