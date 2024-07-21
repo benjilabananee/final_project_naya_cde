@@ -25,7 +25,7 @@ def fetch_and_produce_stock_data(producer, date):
 
         for row in parsed_data.get('results', []):
             row['date_time'] = date_string
-            producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
+            producer.send(topic="stock_data", value=json.dumps(row).encode('utf-8'))
             print(row)
     except requests.RequestException as e:
         print(f"Failed to retrieve data for {date_string}: {e}")
