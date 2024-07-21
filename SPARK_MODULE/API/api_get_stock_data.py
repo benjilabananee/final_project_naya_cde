@@ -10,9 +10,10 @@ params = {
     "apiKey": "4L8BLqY1mDFQIZnC0OzistwsUfrVHNKT"
 }
 
-response = requests.get(url=url,params=params)
 
 def fetch_and_produce_stock_data():
+    response = requests.get(url=url,params=params)
+    
     if response.status_code == 200:
 
         parsed_data = json.loads(response.text) 
@@ -20,9 +21,9 @@ def fetch_and_produce_stock_data():
 
         for row in parsed_data['results']:   
                 row['date_time'] = str(datetime.strptime(date_string, "%Y-%m-%d").date())
-                print(row)
                 producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
-                producer.send(topic="stock_data", value=json.dumps(row).encode('utf-8'))
+                producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
+                print(row)
     else:
         print(f"Failed to retrieve data: {response.status_code}")
 

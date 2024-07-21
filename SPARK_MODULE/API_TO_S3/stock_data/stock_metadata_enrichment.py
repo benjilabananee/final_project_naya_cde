@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType,DataType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType,DateType
 
 spark = SparkSession \
     .builder \
@@ -17,7 +17,7 @@ parquet_df = spark.read.parquet(parquet_path)
 kafka_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "course-kafka:9092") \
-    .option("subscribe", "stock_data") \
+    .option("subscribe", "stock_data_test") \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -31,7 +31,7 @@ schema = StructType([
     StructField("h", FloatType(), True),         # 'h': float type
     StructField("l", FloatType(), True),         # 'l': float type
     StructField("n", IntegerType(), True),        # 'n': integer type
-    StructField("date_time"), DataType
+    StructField("date_time", DateType(), True )
 ])
 
 # Parse the JSON data
@@ -47,7 +47,7 @@ kafka_extracted_df = kafka_parsed_df.select(
     col("parsed_value.h"),
     col("parsed_value.l"),
     col("parsed_value.n"),
-    col("date_time").alias("transaction_date")
+    col("parsed_value.date_time").alias("transaction_date")
 )
 
 # Rename columns in the Parquet DataFrame to avoid conflicts
@@ -65,21 +65,21 @@ parquet_renamed_df = parquet_df.select(
 
 # Perform the join operation
 joined_df = kafka_extracted_df.join(
-    parquet_renamed_df,
-    kafka_extracted_df["kafka_ticker"] == parquet_renamed_df["parquet_ticker"],
+    parquet_df,
+    kafka_extracted_df["kafka_ticker"] == parquet_df["ticker"],
     "inner"
 )
 
 # Select columns for the output
 result_df = joined_df.select(
-    parquet_renamed_df["name"],
-    parquet_renamed_df["market"],
-    parquet_renamed_df["locale"],
-    parquet_renamed_df["primary_exchange"],
-    parquet_renamed_df["type"],
-    parquet_renamed_df["active"],
-    parquet_renamed_df["currency_name"],
-    parquet_renamed_df["cik"],
+    parquet_df["name"],
+    parquet_df["market"],
+    parquet_df["locale"],
+    parquet_df["primary_exchange"],
+    parquet_df["type"],
+    parquet_df["active"],
+    parquet_df["currency_name"],
+    parquet_df["cik"],
     kafka_extracted_df["kafka_ticker"].alias("ticker"),
     kafka_extracted_df["v"].alias("volume"),
     kafka_extracted_df["vw"].alias("volume_weighted"),
@@ -87,13 +87,18 @@ result_df = joined_df.select(
     kafka_extracted_df["c"].alias("close_price"),
     kafka_extracted_df["h"].alias("high_price"),
     kafka_extracted_df["l"].alias("low_price"),
-    kafka_extracted_df["n"].alias("number_of_transaction")
+    kafka_extracted_df["n"].alias("number_of_transaction"),
+    kafka_extracted_df["transaction_date"]
 )
 
 # Output the results
 query = result_df.writeStream \
-    .outputMode("append") \
-    .format("console") \
-    .start()
+                 .format("parquet") \
+                 .option("path", "s3a://spark/stock/transaction") \
+                 .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
+                 .partitionBy("transaction_date") \
+                 .outputMode("append") \
+                 .start()
+
 
 query.awaitTermination()
