@@ -18,7 +18,7 @@ df = spark.read \
 # Remove duplicates
 df_dedup = df.dropDuplicates()
 
-count_after = df_dedup.count()
+count_after = df_dedup.show()
 print(f"Count after deduplication: {count_after}")
 
 #remove the colum of the date
