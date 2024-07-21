@@ -1,6 +1,5 @@
 from kafka import KafkaProducer
 import time,json,requests
-from datetime import datetime
 import  SPARK_MODULE.configuration as c
 
 url = c.stock_data_from_api

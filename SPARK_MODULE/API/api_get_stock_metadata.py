@@ -9,7 +9,6 @@ base_url = c.base_url_stock_meta_data + c.api_keys
 max_requests_per_minute = 5
 
 
-
 def fetch_all_data():
     url = base_url
     all_results = []
