@@ -30,7 +30,7 @@ schema = StructType([
 kafka_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "course-kafka:9092") \
-    .option("subscribe", "stock_data_test") \
+    .option("subscribe", "stock_data") \
     .option("startingOffsets", "earliest") \
     .load()
 
