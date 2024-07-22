@@ -1,15 +1,6 @@
 from pyspark.sql import SparkSession
 
 def create_spark_session(app_name: str) -> SparkSession:
-    """
-    Create and return a SparkSession.
-    
-    Parameters:
-        app_name (str): The name of the Spark application.
-        
-    Returns:
-        SparkSession: A configured SparkSession.
-    """
     return SparkSession \
         .builder \
         .master("local[*]") \
@@ -18,27 +9,13 @@ def create_spark_session(app_name: str) -> SparkSession:
         .getOrCreate()
 
 def read_parquet_from_s3(spark: SparkSession, path: str):
-    """
-    Read data from Parquet files in S3.
-    
-    Parameters:
-        spark (SparkSession): The active SparkSession.
-        path (str): The S3 path to the Parquet files.
-        
-    Returns:
-        DataFrame: A Spark DataFrame containing the data.
-    """
+
     return spark.read \
         .format("parquet") \
         .load(path)
 
 def write_stock_transformed_data(df):
-    """
-    Write the transformed stock data to a PostgreSQL database.
-    
-    Parameters:
-        df (DataFrame): The DataFrame to be written to the database.
-    """
+
     jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
     connection_properties = {
         "user": "postgres",
