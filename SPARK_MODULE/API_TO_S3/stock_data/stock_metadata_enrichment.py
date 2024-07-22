@@ -95,18 +95,18 @@ result_df = joined_df.select(
 
 
 # Write the result to S3 in Parquet format with checkpointing
-# query = result_df.writeStream \
-#     .format("parquet") \
-#     .option("path", "s3a://spark/stock/transaction") \
-#     .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
-#     .partitionBy("transaction_date") \
-#     .outputMode("append") \
-#     .start()
-
 query = result_df.writeStream \
-    .format("console") \
+    .format("parquet") \
+    .option("path", "s3a://spark/stock/transaction") \
+    .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
+    .partitionBy("transaction_date") \
     .outputMode("append") \
     .start()
+
+# query = result_df.writeStream \
+#     .format("console") \
+#     .outputMode("append") \
+#     .start()
 
 # Await termination of the query
 query.awaitTermination()
