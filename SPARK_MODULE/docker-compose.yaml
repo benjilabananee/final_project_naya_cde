@@ -64,6 +64,9 @@ services:
             - "4040:4040"
             - "4041:4041"
             - "4042:4042"
+        volumes:
+            - ./jars:/opt/spark/jars
+        
 
     # mongo:
     #     image: mongo:6.0.13
