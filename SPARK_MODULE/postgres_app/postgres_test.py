@@ -14,7 +14,7 @@ def create_spark_session(app_name: str) -> SparkSession:
         .builder \
         .master("local[*]") \
         .appName(app_name) \
-        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+        .config("spark.jars", "/opt/spark/jars/postgresql-42.7.3.jar") \
         .getOrCreate()
 
 def read_parquet_from_s3(spark: SparkSession, path: str):
@@ -47,16 +47,16 @@ def write_stock_transformed_data(df):
     }
     
     df.write \
-        .jdbc(url=jdbc_url, table="your_table_name", mode="append", properties=connection_properties)
+        .jdbc(url=jdbc_url, table="market_data", mode="append", properties=connection_properties)
 
 if __name__ == '__main__':
     app_name = "S3ParquetProcessing"
-    parquet_path = "s3a://spark/stock/metadata"
-    filtered_parquet_path = "s3a://spark/stock/transaction"
+    parquet_path = "s3a://spark/stock/transaction"
 
     try:
         spark = create_spark_session(app_name)
         df = read_parquet_from_s3(spark, parquet_path)
+        # df.show()
         write_stock_transformed_data(df)
     except Exception as e:
         print(f"An error occurred: {e}")
