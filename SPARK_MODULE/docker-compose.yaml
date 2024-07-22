@@ -98,6 +98,8 @@ services:
             - POSTGRES_PORT=5432
         ports:
             - "5432:5432"
+        volumes:
+        - ./jars:/opt/spark/jars
 
     airflow-init:
         image: apache/airflow:2.0.0

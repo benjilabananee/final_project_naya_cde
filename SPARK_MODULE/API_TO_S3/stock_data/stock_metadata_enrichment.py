@@ -93,12 +93,18 @@ result_df = joined_df.select(
     kafka_extracted_df["transaction_date"]
 )
 
+
 # Write the result to S3 in Parquet format with checkpointing
+# query = result_df.writeStream \
+#     .format("parquet") \
+#     .option("path", "s3a://spark/stock/transaction") \
+#     .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
+#     .partitionBy("transaction_date") \
+#     .outputMode("append") \
+#     .start()
+
 query = result_df.writeStream \
-    .format("parquet") \
-    .option("path", "s3a://spark/stock/transaction") \
-    .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
-    .partitionBy("transaction_date") \
+    .format("console") \
     .outputMode("append") \
     .start()
 

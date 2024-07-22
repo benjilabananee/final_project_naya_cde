@@ -21,9 +21,5 @@ df = spark.read \
 # Show the first few rows of the DataFrame
 df.show()
 
-# Perform some operations
-# df_filtered = df.filter(df["market_data"] > 100)
-df.show()
-
 # Stop the SparkSession
 spark.stop()
