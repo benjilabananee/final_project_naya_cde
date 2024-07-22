@@ -1,25 +1,64 @@
 from pyspark.sql import SparkSession
 
-# Initialize SparkSession
-spark = SparkSession.builder \
-    .appName("PostgresConnectionExample") \
-    .config("spark.jars", "/opt/spark/jars/postgresql-42.7.3.jar") \
-    .getOrCreate()
+def create_spark_session(app_name: str) -> SparkSession:
+    """
+    Create and return a SparkSession.
+    
+    Parameters:
+        app_name (str): The name of the Spark application.
+        
+    Returns:
+        SparkSession: A configured SparkSession.
+    """
+    return SparkSession \
+        .builder \
+        .master("local[*]") \
+        .appName(app_name) \
+        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+        .getOrCreate()
 
-# Database connection properties
-jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
-connection_properties = {
-    "user": "postgres",
-    "password": "postgres",
-    "driver": "org.postgresql.Driver"
-}
+def read_parquet_from_s3(spark: SparkSession, path: str):
+    """
+    Read data from Parquet files in S3.
+    
+    Parameters:
+        spark (SparkSession): The active SparkSession.
+        path (str): The S3 path to the Parquet files.
+        
+    Returns:
+        DataFrame: A Spark DataFrame containing the data.
+    """
+    return spark.read \
+        .format("parquet") \
+        .load(path)
 
-# Read data from PostgreSQL table
-df = spark.read \
-    .jdbc(url=jdbc_url, table="market_data", properties=connection_properties)
+def write_stock_transformed_data(df):
+    """
+    Write the transformed stock data to a PostgreSQL database.
+    
+    Parameters:
+        df (DataFrame): The DataFrame to be written to the database.
+    """
+    jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
+    connection_properties = {
+        "user": "postgres",
+        "password": "postgres",
+        "driver": "org.postgresql.Driver"
+    }
+    
+    df.write \
+        .jdbc(url=jdbc_url, table="your_table_name", mode="append", properties=connection_properties)
 
-# Show the first few rows of the DataFrame
-df.show()
+if __name__ == '__main__':
+    app_name = "S3ParquetProcessing"
+    parquet_path = "s3a://spark/stock/metadata"
+    filtered_parquet_path = "s3a://spark/stock/transaction"
 
-# Stop the SparkSession
-spark.stop()
+    try:
+        spark = create_spark_session(app_name)
+        df = read_parquet_from_s3(spark, parquet_path)
+        write_stock_transformed_data(df)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        spark.stop()  # Stop the Spark session
