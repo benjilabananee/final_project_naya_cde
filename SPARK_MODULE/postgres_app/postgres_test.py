@@ -47,6 +47,7 @@ def get_monthly_paths(base_path: str, start_date: str, end_date: str) -> list:
             current_date = current_date.replace(year=year + 1, month=1, day=1)
         else:
             current_date = current_date.replace(month=month + 1, day=1)
+    print(paths)
 
     return paths
 
@@ -137,13 +138,17 @@ def main():
             if not s3_paths:
                 print("No S3 paths generated.")
                 return
-
+  
             combined_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), schema=schema)
-
+            
             for path in s3_paths:
                 df = read_parquet_from_s3(spark, path)
-                if not df.isEmpty():
-                    combined_df = combined_df.union(df)
+                
+                # Filter the DataFrame to include only rows with the latest date
+                filtered_df = df.filter(df['transaction_date'] > get_max_date_from_db(spark,connection_properties))
+            
+                if not filtered_df.isEmpty():
+                    combined_df = combined_df.union(filtered_df)
 
             if combined_df.isEmpty():
                 print("No data combined from S3 paths.")
