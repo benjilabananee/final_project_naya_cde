@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
+from pyspark.sql import functions as F
 
 # Initialize Spark Session
 spark = SparkSession.builder \
@@ -93,20 +94,17 @@ result_df = joined_df.select(
     kafka_extracted_df["transaction_date"]
 )
 
+result_df = result_df.withColumn("year", F.year(F.col("transaction_date")))
+result_df = result_df.withColumn("month", F.month(F.col("transaction_date")))
 
 # Write the result to S3 in Parquet format with checkpointing
 query = result_df.writeStream \
     .format("parquet") \
     .option("path", "s3a://spark/stock/transaction") \
     .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
-    .partitionBy("transaction_date") \
+    .partitionBy("year","month") \
     .outputMode("append") \
     .start()
-
-# query = result_df.writeStream \
-#     .format("console") \
-#     .outputMode("append") \
-#     .start()
 
 # Await termination of the query
 query.awaitTermination()

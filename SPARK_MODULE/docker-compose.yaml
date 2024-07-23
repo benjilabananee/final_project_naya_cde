@@ -92,7 +92,6 @@ services:
     #     depends_on:
     #         - elasticsearch
             
-    postgres:
         image: postgres:12
         environment:
             - POSTGRES_USER=postgres
@@ -100,6 +99,7 @@ services:
             - POSTGRES_DB=airflow
             - POSTGRES_PORT=5432
         ports:
+    postgres:
             - "5432:5432"
         volumes:
         - ./jars:/opt/spark/jars
