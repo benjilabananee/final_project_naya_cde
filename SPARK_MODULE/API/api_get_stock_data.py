@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
 end_date = datetime.now() - timedelta(days=1)  # Current date
-start_date = end_date - timedelta(days=30)  # 5 days ago
+start_date = end_date - timedelta(days=100)  # 100 days ago
 
 params = {
     "adjusted": "true",
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     while current_date <= end_date:
         if request_count == REQUESTS_PER_MINUTE:
-            time.sleep(60)  # Wait for 60 seconds
+            time.sleep(62)  # Wait for 60 seconds
             request_count = 0
 
         fetch_and_produce_stock_data(producer, current_date)

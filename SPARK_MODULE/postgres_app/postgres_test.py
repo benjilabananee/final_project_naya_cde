@@ -109,7 +109,7 @@ def main():
     try:
         spark = create_spark_session(app_name)
         last_cut_date = get_max_date_from_db(spark, connection_properties)
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now().strftime('%Y-%m-%d') 
 
         schema = StructType([
             StructField("name", StringType(), True),
