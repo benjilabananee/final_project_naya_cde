@@ -1,8 +1,10 @@
+import sys
+sys.path.append('/home/developer/final_project_naya_cde-1')
 from kafka import KafkaProducer
 import time
 import json
 import requests
-import configuration as c 
+from SPARK_MODULE import configuration  as c
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api

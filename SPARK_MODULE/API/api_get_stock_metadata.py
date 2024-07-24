@@ -2,7 +2,7 @@ import requests
 from kafka import KafkaProducer
 import time
 import json
-import configuration as c
+import SPARK_MODULE.configuration as c
 from typing import List
 
 # Configuration
