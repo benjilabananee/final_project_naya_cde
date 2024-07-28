@@ -1,10 +1,10 @@
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python')
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
 from kafka import KafkaProducer
 import time
 import json
 import requests
-import final_project_naya_cde.SPARK_MODULE.configuration  as c
+import SPARK_MODULE.configuration  as c # type: ignore
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api

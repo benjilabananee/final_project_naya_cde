@@ -1,20 +1,30 @@
+import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
 from pyspark.sql import SparkSession, DataFrame, Row
 from pyspark.sql.functions import max
 from datetime import datetime, timedelta
 from pyspark.sql.types import (
     StructType, StructField, StringType, DoubleType, IntegerType, BooleanType, DateType
 )
-
+import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:
+
     """
-    Create and return a SparkSession.
+    Create and return a SparkSession configured for MinIO.
     """
+
     return SparkSession \
         .builder \
         .master("local[*]") \
         .appName(app_name) \
         .config("spark.jars", "/opt/spark/jars/postgresql-42.7.3.jar") \
+        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+        .config("spark.hadoop.fs.s3a.endpoint", c.minio_server) \
+        .config("spark.hadoop.fs.s3a.access.key", c.minio_access_key) \
+        .config("spark.hadoop.fs.s3a.secret.key", c.minio_secret_key) \
+        .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
+        .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .getOrCreate()
 
 
@@ -163,7 +173,6 @@ def main():
 
     finally:
         spark.stop()
-
 
 if __name__ == '__main__':
     main()

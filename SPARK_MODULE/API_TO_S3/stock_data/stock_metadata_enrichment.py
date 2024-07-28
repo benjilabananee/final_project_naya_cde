@@ -3,12 +3,14 @@ from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 from pyspark.sql import functions as F
 
+
 # Initialize Spark Session
-spark = SparkSession.builder \
-    .master("local[*]") \
-    .appName('kafka_stock') \
-    .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2') \
-    .getOrCreate()
+spark =  SparkSession \
+        .builder \
+        .master("local[*]") \
+        .appName('kafka_stok') \
+        .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2') \
+        .getOrCreate()
 
 # Read Parquet file from S3
 parquet_path = "s3a://spark/stock/metadata_filtered"

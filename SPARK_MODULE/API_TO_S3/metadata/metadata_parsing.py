@@ -1,16 +1,35 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
+import os
+import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:
-    """
-    Create and return a SparkSession.
-    """
+    # minio_endpoint = os.getenv('MINIO_SERVER', 'http://minio:9000')
+    # minio_access_key = os.getenv('MINIO_ACCESS_KEY', 'RGw8lfP8gExTCS7C')
+    # minio_secret_key = os.getenv('MINIO_SECRET_KEY', 'BhTorYGmvKmm4hpvPrESoLbMP3DMMa1g')
+
     return SparkSession \
         .builder \
         .master("local[*]") \
         .appName(app_name) \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+        .config("spark.hadoop.fs.s3a.endpoint", c.minio_server) \
+        .config("spark.hadoop.fs.s3a.access.key", c.minio_access_key) \
+        .config("spark.hadoop.fs.s3a.secret.key", c.minio_secret_key) \
+        .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
+        .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .getOrCreate()
+    # """
+    # Create and return a SparkSession.
+    # """
+    # return SparkSession \
+    #     .builder \
+    #     .master("local[*]") \
+    #     .appName(app_name) \
+    #     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
+    #     .getOrCreate()
 
 def read_parquet_from_s3(spark: SparkSession, path: str):
     """
