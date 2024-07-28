@@ -1,8 +1,10 @@
 import requests
+import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python')
 from kafka import KafkaProducer
 import time
 import json
-import SPARK_MODULE.configuration as c
+import final_project_naya_cde.SPARK_MODULE.configuration as c
 from typing import List
 
 # Configuration

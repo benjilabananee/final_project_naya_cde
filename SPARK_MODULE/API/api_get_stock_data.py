@@ -1,10 +1,10 @@
 import sys
-sys.path.append('/home/developer/final_project_naya_cde-1')
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python')
 from kafka import KafkaProducer
 import time
 import json
 import requests
-from SPARK_MODULE import configuration  as c
+import final_project_naya_cde.SPARK_MODULE.configuration  as c
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
