@@ -8,8 +8,8 @@ import SPARK_MODULE.configuration  as c # type: ignore
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
-end_date = datetime.now() - timedelta(days=1)  # Current date
-start_date = end_date - timedelta(days=100)  # 100 days ago
+end_date = datetime.now() - timedelta(days=1) # Current date
+start_date = end_date - timedelta(days=1)  # 100 days ago
 
 params = {
     "adjusted": "true",
@@ -26,10 +26,11 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
         response = requests.get(url=url, params=params) 
         response.raise_for_status()  # Raise an HTTPError for bad responses
         parsed_data = response.json()  # Dirctly get the JSON data
-
+        
+        print(url)
         for row in parsed_data.get('results', []):
             row['date_time'] = date_string
-            producer.send(topic="stock_data", value=json.dumps(row).encode('utf-8'))
+            producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
             print(row)
 
     except requests.RequestException as e:
