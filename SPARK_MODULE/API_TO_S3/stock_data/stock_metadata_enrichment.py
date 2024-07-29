@@ -2,9 +2,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 from pyspark.sql import functions as F
+import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+import SPARK_MODULE.configuration as c
 
-
-# Initialize Spark Session
+# Initialize Spark Session-
 spark =  SparkSession \
         .builder \
         .master("local[*]") \
@@ -13,7 +15,7 @@ spark =  SparkSession \
         .getOrCreate()
 
 # Read Parquet file from S3
-parquet_path = "s3a://spark/stock/metadata_filtered"
+parquet_path = c.s3_metadata_cleaned
 parquet_df = spark.read.parquet(parquet_path)
 
 # Define schema for JSON data from Kafka
@@ -32,8 +34,8 @@ schema = StructType([
 # Set up Kafka source and read stream data
 kafka_df = spark.readStream \
     .format("kafka") \
-    .option("kafka.bootstrap.servers", "course-kafka:9092") \
-    .option("subscribe", "stock_data") \
+    .option("kafka.bootstrap.servers", c.kafka_cluster) \
+    .option("subscribe", c.stock_data_topic) \
     .option("startingOffsets", "earliest") \
     .load()
 
@@ -102,8 +104,8 @@ result_df = result_df.withColumn("month", F.month(F.col("transaction_date")))
 # Write the result to S3 in Parquet format with checkpointing
 query = result_df.writeStream \
     .format("parquet") \
-    .option("path", "s3a://spark/stock/transaction") \
-    .option("checkpointLocation", "s3a://spark/stock/transaction/checkpoint") \
+    .option("path", c.s3_modified_transaction) \
+    .option("checkpointLocation", c.s3_modified_transaction_checkpoint) \
     .partitionBy("year","month") \
     .outputMode("append") \
     .start()

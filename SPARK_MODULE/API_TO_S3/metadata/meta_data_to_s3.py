@@ -1,6 +1,9 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, BooleanType
 from pyspark.sql.functions import col, from_json
+import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:
     """
@@ -63,13 +66,13 @@ if __name__ == '__main__':
     # Configuration
     app_name = 'S3_cars_to_kafka'
     kafka_options = {
-        "kafka.bootstrap.servers": "course-kafka:9092",
-        "subscribe": "stock_meta_data_to_s3_test",
+        "kafka.bootstrap.servers": c.kafka_cluster,
+        "subscribe": c.stock_metadata_topic,
         "startingOffsets": "earliest"
     }
     parquet_options = {
-        "path": "s3a://spark/stock/metadata",
-        "checkpointLocation": "s3a://spark/stock/metadata/checkpoint"
+        "path": c.s3_metadata_path,
+        "checkpointLocation": c.s3_metadata_checkpoint
     }
 
     # Execution

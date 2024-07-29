@@ -4,7 +4,7 @@ from kafka import KafkaProducer
 import time
 import json
 import requests
-import SPARK_MODULE.configuration  as c # type: ignore
+import SPARK_MODULE.configuration  as c # type: ignores
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
@@ -30,7 +30,7 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
         print(url)
         for row in parsed_data.get('results', []):
             row['date_time'] = date_string
-            producer.send(topic="stock_data_test", value=json.dumps(row).encode('utf-8'))
+            producer.send(topic=c.stock_data_topic, value=json.dumps(row).encode('utf-8'))
             print(row)
 
     except requests.RequestException as e:
@@ -39,7 +39,7 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
         print(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
-    producer = KafkaProducer(bootstrap_servers="course-kafka:9092")
+    producer = KafkaProducer(bootstrap_servers=c.kafka_cluster)
     current_date = start_date
     request_count = 0
 
