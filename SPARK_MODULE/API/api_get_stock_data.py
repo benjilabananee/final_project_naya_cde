@@ -4,7 +4,7 @@ from kafka import KafkaProducer
 import time
 import json
 import requests
-import SPARK_MODULE.configuration  as c # type: ignore
+import SPARK_MODULE.configuration  as c # type: ignores
 from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
