@@ -2,8 +2,8 @@
 ####################################GENERAL_KAFKA######################################
 ######################################################################################
 kafka_cluster = "course-kafka:9092"
-stock_data_topic="stock_data_test"
-stock_metadata_topic="stock_meta_data_to_s3_test"
+stock_data_topic="stock_data"
+stock_metadata_topic="stock_meta_data_to_s3"
 
 ######################################################################################
 ####################################GENERAL_S3######################################
