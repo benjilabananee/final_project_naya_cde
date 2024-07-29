@@ -6,9 +6,6 @@ sys.path.append('/home/developer/projects/spark-course-python/spark_course_pytho
 import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:
-    # minio_endpoint = os.getenv('MINIO_SERVER', 'http://minio:9000')
-    # minio_access_key = os.getenv('MINIO_ACCESS_KEY', 'RGw8lfP8gExTCS7C')
-    # minio_secret_key = os.getenv('MINIO_SECRET_KEY', 'BhTorYGmvKmm4hpvPrESoLbMP3DMMa1g')
 
     return SparkSession \
         .builder \
@@ -21,15 +18,6 @@ def create_spark_session(app_name: str) -> SparkSession:
         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
         .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .getOrCreate()
-    # """
-    # Create and return a SparkSession.
-    # """
-    # return SparkSession \
-    #     .builder \
-    #     .master("local[*]") \
-    #     .appName(app_name) \
-    #     .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
-    #     .getOrCreate()
 
 def read_parquet_from_s3(spark: SparkSession, path: str):
     """
@@ -70,8 +58,8 @@ def write_parquet_to_s3(df, path: str):
 if __name__ == '__main__':
     # Configuration
     app_name = "S3ParquetProcessing"
-    parquet_path = "s3a://spark/stock/metadata"
-    filtered_parquet_path = "s3a://spark/stock/metadata_filtered"
+    parquet_path = c.s3_metadata_path
+    filtered_parquet_path = c.s3_metadata_cleaned
     column_to_drop = "last_updated_utc"
 
     # Execution

@@ -10,8 +10,6 @@ from typing import List
 # Configuration
 BASE_URL = f"{c.base_url_stock_meta_data}{c.api_key}"
 MAX_REQUESTS_PER_MINUTE = 5
-KAFKA_TOPIC = "stock_meta_data_to_s3_test"
-KAFKA_SERVER = "course-kafka:9092"
 
 def fetch_all_data(base_url: str, max_requests_per_minute: int):
     url = base_url
@@ -48,10 +46,10 @@ def fetch_all_data(base_url: str, max_requests_per_minute: int):
         request_count += 1
 
 def send_data_to_kafka(all_results: List[dict]):
-    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+    producer = KafkaProducer(bootstrap_servers=c.kafka_cluster, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
     for row in all_results:
         print(row)
-        producer.send(KAFKA_TOPIC, value=row)
+        producer.send(c.stock_metadata_topic, value=row)
     producer.flush()
     producer.close()
 
