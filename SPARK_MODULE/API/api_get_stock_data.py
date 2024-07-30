@@ -27,7 +27,6 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
         response.raise_for_status()  # Raise an HTTPError for bad responses
         parsed_data = response.json()  # Dirctly get the JSON data
         
-        print(url)
         for row in parsed_data.get('results', []):
             row['date_time'] = date_string
             producer.send(topic=c.stock_data_topic, value=json.dumps(row).encode('utf-8'))
