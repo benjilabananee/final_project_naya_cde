@@ -2,10 +2,8 @@ import sys
 sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
 from pyspark.sql import SparkSession, DataFrame, Row
 from pyspark.sql.functions import max
-from datetime import datetime, timedelta
-from pyspark.sql.types import (
-    StructType, StructField, StringType, DoubleType, IntegerType, BooleanType, DateType
-)
+from datetime import datetime
+from pyspark.sql.types import  StructType, StructField, StringType, DoubleType, IntegerType, BooleanType, DateType
 import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:
@@ -62,7 +60,7 @@ def get_monthly_paths(base_path: str, start_date: str, end_date: str) -> list:
     return paths
 
 
-def write_stock_transformed_data(df: DataFrame, connection_properties: dict):
+def write_stock_transformed_data(df: DataFrame, connection_properties: dict, jdbc_url: str):
     """
     Write the transformed stock data to a PostgreSQL database.
     """
@@ -70,13 +68,11 @@ def write_stock_transformed_data(df: DataFrame, connection_properties: dict):
         print("No data to write to PostgreSQL.")
         return
 
-    jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
-
     df.write \
         .jdbc(url=jdbc_url, table="market_data", mode="append", properties=connection_properties)
 
 
-def write_the_last_cut_date(df: DataFrame, spark: SparkSession, connection_properties: dict):
+def write_the_last_cut_date(df: DataFrame, spark: SparkSession, connection_properties: dict, jdbc_url: str):
     """
     Write the last cut date to a PostgreSQL database.
     """
@@ -87,17 +83,14 @@ def write_the_last_cut_date(df: DataFrame, spark: SparkSession, connection_prope
     max_date = df.agg(max("transaction_date")).collect()[0][0]
     date_df = spark.createDataFrame([Row(CUT_DATE=max_date)])
 
-    jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
-
     date_df.write \
         .jdbc(url=jdbc_url, table="cutting_dates", mode="append", properties=connection_properties)
 
 
-def get_max_date_from_db(spark: SparkSession, connection_properties: dict) -> str:
+def get_max_date_from_db(spark: SparkSession, connection_properties: dict, jdbc_url: str) -> str:
     """
     Get the maximum date from a specified table in the PostgreSQL database.
     """
-    jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
     
     max_date_df = spark.read \
         .jdbc(url=jdbc_url, table="cutting_dates", properties=connection_properties) \
@@ -109,17 +102,18 @@ def get_max_date_from_db(spark: SparkSession, connection_properties: dict) -> st
 
 def main():
     app_name = "S3ParquetProcessing"
-    parquet_base_path = "s3a://spark/stock/transaction"
+    parquet_base_path = c.s3_modified_transaction
 
+    jdbc_url = c.jdbc_url
     connection_properties = {
-        "user": "postgres",
-        "password": "postgres",
-        "driver": "org.postgresql.Driver"
+    "user": c.user_postgres,
+    "password": c.password_postgres,
+    "driver": c.driver_postgres
     }
 
     try:
         spark = create_spark_session(app_name)
-        last_cut_date = get_max_date_from_db(spark, connection_properties)
+        last_cut_date = get_max_date_from_db(spark, connection_properties,jdbc_url)
         current_date = datetime.now().strftime('%Y-%m-%d') 
 
         schema = StructType([
@@ -163,8 +157,8 @@ def main():
             if combined_df.isEmpty():
                 print("No data combined from S3 paths.")
             else:
-                write_stock_transformed_data(combined_df, connection_properties)
-                write_the_last_cut_date(combined_df, spark, connection_properties)
+                write_stock_transformed_data(combined_df, connection_properties, jdbc_url)
+                write_the_last_cut_date(combined_df, spark, connection_properties, jdbc_url)
         else:
             print("No last cut date found in the database.")
     
