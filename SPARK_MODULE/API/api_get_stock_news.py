@@ -1,5 +1,6 @@
 import requests
 import sys
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
 import time
 import json
 from typing import Optional
@@ -112,7 +113,7 @@ def write_to_postgres(df: DataFrame, jdbc_url: str, connection_properties: dict)
         .jdbc(url=jdbc_url, table="articles", mode="overwrite", properties=connection_properties)
 
 if __name__ == '__main__':
-    
+
     fetch_data_udf = udf(fetch_data, StringType())
 
     spark = get_spark_session()
