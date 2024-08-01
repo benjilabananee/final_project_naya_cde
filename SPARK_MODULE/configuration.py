@@ -31,3 +31,12 @@ api_key = "4L8BLqY1mDFQIZnC0OzistwsUfrVHNKT"
 minio_access_key = "RGw8lfP8gExTCS7C"
 minio_secret_key = "BhTorYGmvKmm4hpvPrESoLbMP3DMMa1g"
 minio_server = "http://minio:9000"
+
+######################################################################################
+####################################POSTGRES_DETAILS##################################
+######################################################################################
+
+jdbc_url = "jdbc:postgresql://postgres:5432/airflow"
+user_postgres = "postgres"
+password_postgres = "postgres"
+driver_postgres = "org.postgresql.Driver"
