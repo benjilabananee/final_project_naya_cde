@@ -12,11 +12,6 @@ sys.path.append('/home/developer/')
 import SPARK_MODULE.configuration as c
 from pyspark.sql import functions as F
 
-# Ensure you adjust the path to your configuration
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
-sys.path.append('/home/developer/')
-import SPARK_MODULE.configuration as c
-
 # Configuration
 BASE_URL = f"{c.stock_data_news}{c.api_key}"
 MAX_REQUESTS_PER_MINUTE = 5
@@ -26,11 +21,14 @@ params = {
     "apiKey": c.api_key  # Assuming you have moved the API key to the configuration file
 }
 
+
 def fetch_data(url):
     request_count = 0
     result_data = []
-    
+
     while url:
+        print(url)
+
         if request_count >= MAX_REQUESTS_PER_MINUTE:
             time.sleep(62)  # wait for 60 seconds
             request_count = 0
@@ -46,18 +44,17 @@ def fetch_data(url):
             break
 
         result_data.extend(data.get('results', []))
-        
+
         next_url = data.get('next_url')
         if next_url and 'apiKey=' not in next_url:
             next_url = f"{next_url}&apiKey={c.api_key}"
         url = next_url
         request_count += 1
-        
+
     return json.dumps(result_data)
 
 if __name__ == '__main__':
-
-    # Create the UDF
+    # # Create the UDF
     fetch_data_udf = udf(fetch_data, StringType())
 
     spark = SparkSession.builder \
@@ -67,9 +64,11 @@ if __name__ == '__main__':
         .getOrCreate()
     
     df = spark.createDataFrame([(BASE_URL,)], ["url"])
+    
 
     # Apply the UDF to get JSON data
-    df_with_json_data = df.withColumn("json_data", fetch_data_udf(df["url"]))
+    df_with_json_data = df.withColumn("json_data", fetch_data_udf(df['url']))
+    df_with_json_data.cache()
 
     json_schema = ArrayType(StructType([
         StructField('amp_url', StringType(), True),
@@ -100,16 +99,14 @@ if __name__ == '__main__':
     df_exploded = df_with_data.select(explode(col("data")).alias("data_exploded"))
 
     df_result = df_exploded.select("data_exploded.*")
-    df2 = df_result.filter(col('id') == '7bbcf646aebd2fdad4d6e6b8b54b3541f005f3a099ea501c7a58cb1a8c9ff75f')
-    
-    df_ticker = df2.select(col('title').alias('article_title'),
+
+    df_ticker = df_result.select(col('title').alias('article_title'),
                            col('publisher.name').alias('publisher'),
                            col('author'),
                            F.date_format(F.to_date(F.col('published_utc'), 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''), 'yyyy-MM-dd').alias('publication_date'),
                            col('insights.ticker').alias('ticker'),
                            col('insights.sentiment'))
-    
-    
+
     df_exploded_ticker = df_ticker.withColumn("data_exploded", arrays_zip("ticker", "sentiment")) 
     df_ticker_2 = df_exploded_ticker.withColumn("data_exploded", explode("data_exploded"))
 
@@ -119,8 +116,6 @@ if __name__ == '__main__':
                                 "author",
                                 "publication_date",
                                 col("data_exploded.ticker").alias("ticker"),
-                                col("data_exploded.sentiment").alias("sentiment"))
+                                col("data_exploded.sentiment").alias("sentiment")).filter(col('ticker') == 'ORCL')
 
-
-
-    df_ticker_2.show()
+    df_ticker_2.show() 

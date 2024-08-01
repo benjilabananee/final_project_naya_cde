@@ -21,7 +21,7 @@ s3_modified_transaction_checkpoint ="s3a://spark/stock/transaction/checkpoint"
 
 stock_data_from_api = "https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/"
 base_url_stock_meta_data = "https://api.polygon.io/v3/reference/tickers?active=true&limit=100&market=stocks&apiKey="
-stock_data_news = "https://api.polygon.io/v2/reference/news?ticker=ORCL&limit=300&published_utc.gt=2024-04-19T00:07:00Z&apiKey="
+stock_data_news = "https://api.polygon.io/v2/reference/news?ticker=ORCL&limit=100&published_utc.gt=2024-04-19T00:07:00Z&apiKey="
 api_key = "4L8BLqY1mDFQIZnC0OzistwsUfrVHNKT"
 
 ######################################################################################
