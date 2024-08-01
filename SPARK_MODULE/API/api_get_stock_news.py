@@ -7,7 +7,7 @@ from typing import Optional
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import udf, col, explode, from_json, arrays_zip
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType
-import SPARK_MODULE.configuration as c
+import SPARK_MODULE.configuration  as c # type: ignores
 from pyspark.sql import functions as F
 from datetime import datetime, timedelta
 
