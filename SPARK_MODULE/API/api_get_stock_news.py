@@ -1,6 +1,7 @@
-import requests
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde')
+sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+sys.path.append('/home/developer/')
+import requests
 import time
 import json
 from typing import Optional
