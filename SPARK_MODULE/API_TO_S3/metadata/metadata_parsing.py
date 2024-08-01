@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 import os
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde/')
 import SPARK_MODULE.configuration as c
 
 def create_spark_session(app_name: str) -> SparkSession:

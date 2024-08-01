@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde')
 from kafka import KafkaProducer
 import time
 import json
@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 base_url = c.stock_data_from_api
 end_date = datetime.now() - timedelta(days=1) # Current date
-start_date = end_date - timedelta(days=1)  # 100 days ago
+start_date = end_date - timedelta(days=100)  # 100 days ago
 
 params = {
     "adjusted": "true",
