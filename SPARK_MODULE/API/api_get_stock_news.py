@@ -9,9 +9,12 @@ from pyspark.sql.functions import udf, col, explode, from_json, arrays_zip
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType
 import SPARK_MODULE.configuration as c
 from pyspark.sql import functions as F
+from datetime import datetime, timedelta
 
 # Configuration
-BASE_URL = f"{c.stock_data_news}{c.api_key}"
+news_from_date =datetime.now() - timedelta(days=90) 
+
+BASE_URL = f"{c.stock_data_news}&apiKey={c.api_key}&published_utc.gt={news_from_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
 MAX_REQUESTS_PER_MINUTE = 5
 
 params = {
@@ -24,7 +27,9 @@ def fetch_data(url: str) -> str:
     result_data = []
 
     while url:
+        print(url)
         if request_count >= MAX_REQUESTS_PER_MINUTE:
+            print("rated limit wait 60 second...")
             time.sleep(62)
             request_count = 0
 
