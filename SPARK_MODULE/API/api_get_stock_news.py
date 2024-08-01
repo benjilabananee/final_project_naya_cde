@@ -56,7 +56,7 @@ def fetch_data(url: str) -> str:
 def get_spark_session() -> SparkSession:
     return SparkSession.builder \
         .master("local[*]") \
-        .appName('test') \
+        .appName('gyfgjhygjhgjy') \
         .config("spark.jars", "/opt/spark/jars/postgresql-42.7.3.jar") \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
         .getOrCreate()
@@ -113,16 +113,17 @@ def transform_data(df: DataFrame) -> DataFrame:
         col("data_exploded.sentiment").alias("sentiment")
     ).filter(col('ticker') == 'ORCL')
 
-def write_to_postgres(df: DataFrame, jdbc_url: str, connection_properties: dict) -> None:
+def write_to_postgres(df: DataFrame,connection_properties: dict, jdbc_url: str) -> None:
     df.write \
         .jdbc(url=jdbc_url, table="articles", mode="overwrite", properties=connection_properties)
-
+    
 if __name__ == '__main__':
 
     fetch_data_udf = udf(fetch_data, StringType())
 
     spark = get_spark_session()
     df = spark.createDataFrame([(BASE_URL,)], ["url"])
+
 
     df_with_json_data = df.withColumn("json_data", fetch_data_udf(df['url']))
     df_with_json_data.cache()
@@ -136,4 +137,4 @@ if __name__ == '__main__':
     "driver": c.driver_postgres
     }
 
-    write_to_postgres(transformed_df, jdbc_url, connection_properties)
+    write_to_postgres(transformed_df, connection_properties, jdbc_url)
