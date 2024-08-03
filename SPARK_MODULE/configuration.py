@@ -28,8 +28,8 @@ api_key = "4L8BLqY1mDFQIZnC0OzistwsUfrVHNKT"
 ####################################MINIO_KEYS##########################################
 ######################################################################################
 
-minio_access_key = "RGw8lfP8gExTCS7C"
-minio_secret_key = "BhTorYGmvKmm4hpvPrESoLbMP3DMMa1g"
+minio_access_key = "fA2kgqCumjS776Un"
+minio_secret_key = "jRRhlUy3OQVUNeYigqASrAJHruFAfQqd"
 minio_server = "http://minio:9000"
 
 ######################################################################################

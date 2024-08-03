@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde')
 from pyspark.sql import SparkSession, DataFrame, Row
 from pyspark.sql.functions import max
 from datetime import datetime
@@ -149,7 +149,7 @@ def main():
                 df = read_parquet_from_s3(spark, path)
                 
                 # Filter the DataFrame to include only rows with the latest date
-                filtered_df = df.filter(df['transaction_date'] > get_max_date_from_db(spark,connection_properties))
+                filtered_df = df.filter(df['transaction_date'] > get_max_date_from_db(spark,connection_properties,jdbc_url))
             
                 if not filtered_df.isEmpty():
                     combined_df = combined_df.union(filtered_df)

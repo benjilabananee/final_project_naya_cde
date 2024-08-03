@@ -3,7 +3,7 @@ from pyspark.sql.functions import from_json, col
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 from pyspark.sql import functions as F
 import sys
-sys.path.append('/home/developer/projects/spark-course-python/spark_course_python/final_project_naya_cde/')
+sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde')
 import SPARK_MODULE.configuration as c
 
 # Initialize Spark Session-
