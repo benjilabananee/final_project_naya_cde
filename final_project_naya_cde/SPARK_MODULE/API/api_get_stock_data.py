@@ -13,7 +13,7 @@ start_date = end_date - timedelta(days=1)  # 100 days ago
 
 params = {
     "adjusted": "true",
-    "apiKey": c.api_key  # Assuming you have moved the API key to the configuration file ed
+    "apiKey": c.api_key  # Assuming you have moved the API key to the configuration file
 }
 
 REQUESTS_PER_MINUTE = 5 
