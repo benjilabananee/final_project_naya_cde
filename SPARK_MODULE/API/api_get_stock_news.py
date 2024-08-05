@@ -5,7 +5,7 @@ import time
 import json
 from typing import Optional
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import udf, col, explode, from_json, arrays_zip
+from pyspark.sql.functions import udf, col, explode, from_json, arrays_zip,lit
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType
 import SPARK_MODULE.configuration  as c
 from pyspark.sql import functions as F
@@ -27,7 +27,6 @@ def fetch_data(url: str) -> str:
     result_data = []
 
     while url:
-        print(url)
         if request_count >= MAX_REQUESTS_PER_MINUTE:
             print("rated limit wait 60 second...")
             time.sleep(62)
@@ -56,7 +55,7 @@ def fetch_data(url: str) -> str:
 def get_spark_session() -> SparkSession:
     return SparkSession.builder \
         .master("local[*]") \
-        .appName('gyfgjhygjhgjy') \
+        .appName('test_') \
         .config("spark.jars", "/opt/spark/jars/postgresql-42.7.3.jar") \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.2.0") \
         .getOrCreate()
@@ -119,14 +118,12 @@ def write_to_postgres(df: DataFrame,connection_properties: dict, jdbc_url: str) 
     
 if __name__ == '__main__':
 
-    fetch_data_udf = udf(fetch_data, StringType())
+    json_data = fetch_data(BASE_URL)
 
     spark = get_spark_session()
     df = spark.createDataFrame([(BASE_URL,)], ["url"])
 
-
-    df_with_json_data = df.withColumn("json_data", fetch_data_udf(df['url']))
-    df_with_json_data.cache()
+    df_with_json_data = df.withColumn("json_data", lit(json_data))
 
     transformed_df = transform_data(df_with_json_data)
 
