@@ -66,7 +66,7 @@ services:
             - "4042:4042"
         volumes:
             - ./jars:/opt/spark/jars
-            
+            - ./dags:/home/developer/projects/spark-course-python/dags
     # mongo:
     #     image: mongo:6.0.13
     #     ports:
