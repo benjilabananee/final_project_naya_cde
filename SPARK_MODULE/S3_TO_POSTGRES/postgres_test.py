@@ -157,6 +157,7 @@ def main():
             if combined_df.isEmpty():
                 print("No data combined from S3 paths.")
             else:
+                combined_df = combined_df.dropDuplicates()
                 write_stock_transformed_data(combined_df, connection_properties, jdbc_url)
                 write_the_last_cut_date(combined_df, spark, connection_properties, jdbc_url)
         else:
