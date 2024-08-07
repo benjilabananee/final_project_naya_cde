@@ -12,6 +12,11 @@ spark =  SparkSession \
         .master("local[*]") \
         .appName('kafka_stok') \
         .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2') \
+        .config("spark.hadoop.fs.s3a.endpoint", c.minio_server) \
+        .config("spark.hadoop.fs.s3a.access.key", c.minio_access_key) \
+        .config("spark.hadoop.fs.s3a.secret.key", c.minio_secret_key) \
+        .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false") \
+        .config("spark.hadoop.fs.s3a.path.style.access", "true") \
         .getOrCreate()
 
 # Read Parquet file from S3
@@ -36,7 +41,7 @@ kafka_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", c.kafka_cluster) \
     .option("subscribe", c.stock_data_topic) \
-    .option("startingOffsets", "latest") \
+    .option("startingOffsets", "earliest") \
     .load()
 
 # Parse JSON data from Kafka stream
