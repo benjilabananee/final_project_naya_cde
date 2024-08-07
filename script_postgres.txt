@@ -1,0 +1,37 @@
+DAG_RUN_OPERATOR
+
+CREATE TABLE articles (
+    article_title TEXT NOT NULL,
+    publisher TEXT NOT NULL,
+    author TEXT,
+    publication_date DATE NOT NULL,
+    ticker VARCHAR(10) NOT NULL,
+    sentiment VARCHAR(10) NOT NULL
+);
+
+create table cutting_dates(
+cut_date date not null
+)
+
+INSERT INTO cutting_dates 
+VALUES ('04-01-2024')
+
+CREATE TABLE market_Data (
+    name VARCHAR(255),
+    market VARCHAR(255),
+    locale VARCHAR(255),
+    primary_exchange VARCHAR(255),
+    type VARCHAR(255),
+    active BOOLEAN,
+    currency_name VARCHAR(255),
+    cik VARCHAR(255),
+    ticker VARCHAR(255),
+    volume DOUBLE PRECISION,
+    volume_weighted DOUBLE PRECISION,
+    open_price DOUBLE PRECISION,
+    close_price DOUBLE PRECISION,
+    high_price DOUBLE PRECISION,
+    low_price DOUBLE PRECISION,
+    number_of_transaction INTEGER,
+    transaction_date DATE
+);
