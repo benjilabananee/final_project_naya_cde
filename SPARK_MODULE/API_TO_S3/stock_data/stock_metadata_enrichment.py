@@ -6,9 +6,7 @@ import sys
 sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde')
 import SPARK_MODULE.configuration as c
 from datetime import datetime
-import boto3
-
-
+import boto3 # type: ignore
 
 def list_folders_in_partition(bucket_name: str, partition_prefix: str):
 
@@ -109,7 +107,7 @@ kafka_extracted_df = kafka_parsed_df.select(
     col("parsed_value.l").alias("low_price"),
     col("parsed_value.n").alias("number_of_transaction"),
     col("parsed_value.date_time").alias("transaction_date")
-).filter(col("transaction_date") >= max_transaction_date)
+).filter(col("transaction_date") > max_transaction_date)
 
 # # Rename columns in the Parquet DataFrame to avoid conflicts
 parquet_renamed_df = parquet_df_metadata.select(
