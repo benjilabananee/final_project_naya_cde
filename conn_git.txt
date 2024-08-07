@@ -1,0 +1,18 @@
+git config --global user.name "benjilabanane"
+git config --global user.email "fassi.benjamin@gmail.com"
+
+
+##########################################
+give all access to the final_projectnaya_cde (it was create from your volume)
+
+git clone https://github.com/benjilabananee/final_project_naya_cde.git
+fatal: destination path 'final_project_naya_cde' already exists and is not an empty directory.
+
+1) cd final_project_naya_cde/  
+2) git init 
+3) git config --global --add safe.directory /home/developer/projects/spark-course-python/final_project_naya_cde
+4) git remote add origin https://github.com/benjilabananee/final_project_naya_cde.git
+5) git fetch origin
+6) git merge origin/main
+
+

@@ -66,12 +66,12 @@ services:
             - "4042:4042"
         volumes:
         - ./jars:/opt/spark/jars
-        - ./dags:/home/developer/projects/spark-course-python/dags
+        - ./dags:/home/developer/projects/spark-course-python/final_project_naya_cde/dags
 
-    # mongo:
-    #     image: mongo:6.0.13
-    #     ports:
-    #         - "27017:27017"
+    mongo:
+        image: mongo:6.0.13
+        ports:
+            - "27017:27017"
             
     # nifi:
     #     image: xemuliam/nifi:1.9
