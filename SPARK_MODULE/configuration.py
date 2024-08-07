@@ -29,8 +29,8 @@ stocks_for_investigation = "NVDA,ORCL,INTC,ARM"
 ####################################MINIO_KEYS##########################################
 ######################################################################################
 
-minio_access_key = "r1W02dvWGKMZtB8P"
-minio_secret_key = "vMvT7zXOxL5iGlr9Guzwa86nLgZejUsR"
+minio_access_key = "uIciYucooEkyAt3n"
+minio_secret_key = "W1TZKOV2zT99lOOYYL7ld4kCfzj4RhOD"
 minio_server = "http://minio:9000"
 
 ######################################################################################
