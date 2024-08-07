@@ -1,10 +1,46 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col
+from pyspark.sql.functions import from_json, col,max
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 from pyspark.sql import functions as F
 import sys
 sys.path.append('/home/developer/projects/spark-course-python/final_project_naya_cde')
 import SPARK_MODULE.configuration as c
+from datetime import datetime
+import boto3
+
+
+
+def list_folders_in_partition(bucket_name: str, partition_prefix: str):
+
+    s3_client = boto3.client('s3', endpoint_url=c.minio_server, aws_access_key_id=c.minio_access_key, aws_secret_access_key=c.minio_secret_key)
+    
+    paginator = s3_client.get_paginator('list_objects_v2')
+    folder_paths = set()
+
+    for page in paginator.paginate(Bucket=bucket_name, Prefix=partition_prefix, Delimiter='/'):
+        for content in page.get('CommonPrefixes', []):
+            folder_prefix = content.get('Prefix')
+            if folder_prefix:
+                folder_paths.add(folder_prefix)
+
+    return folder_paths
+
+def get_max_month_path(folders):
+    max_month = -1
+    max_month_path = None
+    
+    for path in folders:
+        # Extract month from the path
+        parts = path.split('/')
+        month_part = next((p for p in parts if p.startswith('month=')), None)
+        
+        if month_part:
+            month = int(month_part.split('=')[1])
+            if month > max_month:
+                max_month = month
+                max_month_path = path
+    
+    return max_month_path
 
 # Initialize Spark Session-
 spark =  SparkSession \
@@ -20,8 +56,20 @@ spark =  SparkSession \
         .getOrCreate()
 
 # Read Parquet file from S3
-parquet_path = c.s3_metadata_cleaned
-parquet_df = spark.read.parquet(parquet_path)
+parquet_path_metadata = c.s3_metadata_cleaned
+parquet_df_metadata = spark.read.parquet(parquet_path_metadata)
+
+bucket_name = 'spark'
+partition_prefix = f'stock/transaction/year={datetime.now().year}/'
+parquet_df_transacions = spark.read.parquet(f"s3a://{bucket_name}/" + get_max_month_path(list_folders_in_partition(bucket_name, partition_prefix)))
+
+# Assuming `result_df` is your DataFrame
+max_transaction_date_df = parquet_df_transacions.agg(max("transaction_date").alias("max_transaction_date"))
+
+# Collect the result
+max_transaction_date = max_transaction_date_df.collect()[0]["max_transaction_date"]
+
+print(f"Maximum transaction_date: {max_transaction_date}")
 
 # Define schema for JSON data from Kafka
 schema = StructType([
@@ -42,9 +90,10 @@ kafka_df = spark.readStream \
     .option("kafka.bootstrap.servers", c.kafka_cluster) \
     .option("subscribe", c.stock_data_topic) \
     .option("startingOffsets", "latest") \
+    .option("failOnDataLoss", "false")\
     .load()
 
-# Parse JSON data from Kafka stream
+# # Parse JSON data from Kafka stream
 kafka_parsed_df = kafka_df.select(
     from_json(col("value").cast("string"), schema).alias("parsed_value")
 )
@@ -60,10 +109,10 @@ kafka_extracted_df = kafka_parsed_df.select(
     col("parsed_value.l").alias("low_price"),
     col("parsed_value.n").alias("number_of_transaction"),
     col("parsed_value.date_time").alias("transaction_date")
-)
+).filter(col("transaction_date") >= max_transaction_date)
 
-# Rename columns in the Parquet DataFrame to avoid conflicts
-parquet_renamed_df = parquet_df.select(
+# # Rename columns in the Parquet DataFrame to avoid conflicts
+parquet_renamed_df = parquet_df_metadata.select(
     col("ticker").alias("parquet_ticker"),
     col("name"),
     col("market"),
@@ -106,6 +155,12 @@ result_df = joined_df.select(
 result_df = result_df.withColumn("year", F.year(F.col("transaction_date")))
 result_df = result_df.withColumn("month", F.month(F.col("transaction_date")))
 
+# # Write to console instead of S3
+# query = result_df.writeStream \
+#     .format("console") \
+#     .outputMode("append") \
+#     .start()
+
 # Write the result to S3 in Parquet format with checkpointing
 query = result_df.writeStream \
     .format("parquet") \
@@ -115,5 +170,4 @@ query = result_df.writeStream \
     .outputMode("append") \
     .start()
 
-# Await termination of the query
 query.awaitTermination()
