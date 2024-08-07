@@ -41,7 +41,7 @@ kafka_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", c.kafka_cluster) \
     .option("subscribe", c.stock_data_topic) \
-    .option("startingOffsets", "earliest") \
+    .option("startingOffsets", "latest") \
     .load()
 
 # Parse JSON data from Kafka stream
