@@ -43,7 +43,6 @@ with DAG('stock_data', default_args=default_args, schedule_interval="@daily", ca
     trigger_stock_news_dag = TriggerDagRunOperator(
         task_id='trigger_stock_news_dag',
         trigger_dag_id='stock_news',
-        wait_for_completion = True,
     )
 
     end_task = SSHOperator(
