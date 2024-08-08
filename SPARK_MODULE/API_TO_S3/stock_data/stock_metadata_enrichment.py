@@ -7,6 +7,7 @@ sys.path.append('/home/developer/projects/spark-course-python/final_project_naya
 import SPARK_MODULE.configuration as c
 from datetime import datetime
 import boto3 # type: ignore
+import time
 
 def list_folders_in_partition(bucket_name: str, partition_prefix: str):
 
@@ -168,4 +169,17 @@ query = result_df.writeStream \
     .outputMode("append") \
     .start()
 
-query.awaitTermination()
+# Set the timeout duration (in seconds)
+timeout_duration = 20  # For example, 1 hour
+
+# Start the timer
+start_time = time.time()
+
+while query.isActive:
+    elapsed_time = time.time() - start_time
+    if elapsed_time >= timeout_duration:
+        query.stop()
+        print(f"Stream stopped after running for {timeout_duration} seconds.")
+        break
+    
+    query.awaitTermination(10)  # Adjust timeout a
