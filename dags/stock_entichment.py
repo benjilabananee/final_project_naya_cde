@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.contrib.operators.ssh_operator import SSHOperator
+from airflow import DAG # type: ignore
+from airflow.contrib.operators.ssh_operator import SSHOperator # type: ignore
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator # type: ignore
 
 # Default arguments for the DAG

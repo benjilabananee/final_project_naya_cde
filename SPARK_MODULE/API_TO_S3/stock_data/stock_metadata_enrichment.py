@@ -154,12 +154,6 @@ result_df = joined_df.select(
 result_df = result_df.withColumn("year", F.year(F.col("transaction_date")))
 result_df = result_df.withColumn("month", F.month(F.col("transaction_date")))
 
-# # Write to console instead of S3
-# query = result_df.writeStream \
-#     .format("console") \
-#     .outputMode("append") \
-#     .start()
-
 # Write the result to S3 in Parquet format with checkpointing
 query = result_df.writeStream \
     .format("parquet") \
@@ -170,7 +164,7 @@ query = result_df.writeStream \
     .start()
 
 # Set the timeout duration (in seconds)
-timeout_duration = 20  # For example, 1 hour
+timeout_duration = 3600  # For example, 1 hour
 
 # Start the timer
 start_time = time.time()
