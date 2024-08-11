@@ -14,7 +14,7 @@ default_args = {
 with DAG('stock_data', default_args=default_args, schedule_interval="@daily", catchup=False) as dag:
 
     get_last_cut_date = SSHOperator(
-        task_id='run_remote_script',
+        task_id='get_last_cut_date',
         ssh_conn_id='ssh_default',  # Define your SSH connection in Airflow
         command='/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/common/get_last_cut_dates.py | tail -n 1',
         do_xcom_push=True,  # Push stdout to XCom
