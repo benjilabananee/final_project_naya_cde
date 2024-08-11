@@ -6,14 +6,21 @@ import json
 import requests
 import SPARK_MODULE.configuration  as c # type: ignores
 from datetime import datetime, timedelta
+import base64
 
 base_url = c.stock_data_from_api
 end_date = datetime.now() - timedelta(days=1) # Current date
-start_date = end_date - timedelta(days=1)  # 100 days ago
+
+#get_last_cut_data from x_comn
+decoded_bytes_last_cut_date = base64.b64decode(sys.argv[1])
+decoded_string_last_cut_date = decoded_bytes_last_cut_date.decode('utf-8')
+parts = decoded_string_last_cut_date.split('\n')
+
+start_date = datetime.strptime(parts[1].strip(), "%Y-%m-%d") + timedelta(days = 1) #end_date - timedelta(days=1)  # 100 days ago
 
 params = {
     "adjusted": "true",
-    "apiKey": c.api_key  # Assuming you have moved the API key to the configuration file ed
+    "apiKey": c.api_key  
 }
 
 REQUESTS_PER_MINUTE = 5 
@@ -32,14 +39,14 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
             producer.send(topic=c.stock_data_topic, value=json.dumps(row).encode('utf-8'))
             print(row)
 
-            # c.stock_data_topic
-
     except requests.RequestException as e:
         print(f"Failed to retrieve data for {date_string}: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
+
+    print( '****************************************************'+ str(start_date) + '*****************************************************')
     producer = KafkaProducer(bootstrap_servers=c.kafka_cluster)
     current_date = start_date
     request_count = 0
