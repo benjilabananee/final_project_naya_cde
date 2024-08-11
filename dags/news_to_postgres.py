@@ -13,11 +13,11 @@ default_args = {
 with DAG('stock_news', default_args=default_args, schedule_interval=None, catchup=False) as dag:
 
     stock_news_ninety_days_before_bash = """/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/API/api_get_stock_news.py"""
-    # stock_news_ninety_days_before_bash = ("pwd")
     stock_news_ninety_days_before = SSHOperator(
         ssh_conn_id='ssh_default',
         task_id='get_stock_news',
         command=stock_news_ninety_days_before_bash,
+        do_xcom_push=False,
     )
     
     stock_news_ninety_days_before

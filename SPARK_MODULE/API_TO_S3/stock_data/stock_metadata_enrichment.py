@@ -164,7 +164,7 @@ query = result_df.writeStream \
     .start()
 
 # Set the timeout duration (in seconds)
-timeout_duration = 3600  # For example, 1 hour
+timeout_duration = 350  # For example, 1 hour
 
 # Start the timer
 start_time = time.time()

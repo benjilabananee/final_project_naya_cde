@@ -20,7 +20,7 @@ with DAG('stock_data', default_args=default_args, schedule_interval="@daily", ca
         do_xcom_push=True,  # Push stdout to XCom
     )
  
-    stock_data_from_previous_day_bash ="""/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/API/api_get_stock_data.py {{task_instance.xcom_pull(task_ids='run_remote_script') }}"""
+    stock_data_from_previous_day_bash ="""/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/API/api_get_stock_data.py {{task_instance.xcom_pull(task_ids='get_last_cut_date') }}"""
     stock_data_from_previous_day_task = SSHOperator(
         ssh_conn_id='ssh_default',
         task_id='get_stock_data',
