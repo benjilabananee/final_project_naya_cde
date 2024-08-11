@@ -13,20 +13,14 @@ default_args = {
 # Define the DAG
 with DAG('stock_data', default_args=default_args, schedule_interval="@daily", catchup=False) as dag:
 
-    start_task = SSHOperator(
-        ssh_conn_id='ssh_default',
-        task_id='start',
-        command="echo start",
-    )
-
-    run_remote_script = SSHOperator(
+    get_last_cut_date = SSHOperator(
         task_id='run_remote_script',
         ssh_conn_id='ssh_default',  # Define your SSH connection in Airflow
-        command='/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/common/get_last_cut_dates.py',
+        command='/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/common/get_last_cut_dates.py | tail -n 1',
         do_xcom_push=True,  # Push stdout to XCom
     )
  
-    stock_data_from_previous_day_bash ="""/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/API/api_get_stock_data.py {{ task_instance.xcom_pull(task_ids='run_remote_script') }}"""
+    stock_data_from_previous_day_bash ="""/bin/python3 /home/developer/projects/spark-course-python/final_project_naya_cde/SPARK_MODULE/API/api_get_stock_data.py {{task_instance.xcom_pull(task_ids='run_remote_script') }}"""
     stock_data_from_previous_day_task = SSHOperator(
         ssh_conn_id='ssh_default',
         task_id='get_stock_data',
@@ -63,4 +57,4 @@ with DAG('stock_data', default_args=default_args, schedule_interval="@daily", ca
         do_xcom_push=False,
     )
 
-    start_task >> run_remote_script >> stock_data_from_previous_day_task >> clean_metadata_task >> stock_data_to_postgres_task >> trigger_stock_news_dag >> end_task
+    get_last_cut_date >> stock_data_from_previous_day_task >> clean_metadata_task >> stock_data_to_postgres_task >> trigger_stock_news_dag >> end_task
