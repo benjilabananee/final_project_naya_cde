@@ -28,12 +28,12 @@ spark =  SparkSession \
 parquet_path_metadata = c.s3_metadata_cleaned
 parquet_df_metadata = spark.read.parquet(parquet_path_metadata)
 
+parquet_df_metadata.cache()
+
 decoded_bytes_last_cut_date = base64.b64decode(sys.argv[1])
 decoded_string_last_cut_date = decoded_bytes_last_cut_date.decode('utf-8')
 
 max_transaction_date = datetime.strptime(decoded_string_last_cut_date.strip(), "%Y-%m-%d") 
-
-print(f"*******************************************************{max_transaction_date}*******************************************************")
 
 # Define schema for JSON data from Kafka
 schema = StructType([
@@ -135,7 +135,6 @@ query = result_df.writeStream \
 
 # Set the timeout duration (in seconds)
 timeout_duration = 350  # For example, 1 hour
-
 # Start the timer
 start_time = time.time()
 
