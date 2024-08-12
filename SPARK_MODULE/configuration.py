@@ -13,7 +13,7 @@ s3_metadata_path = "s3a://spark/stock/metadata"
 s3_metadata_checkpoint ="s3a://spark/stock/metadata/checkpoint"
 s3_metadata_cleaned = "s3a://spark/stock/metadata_filtered"
 s3_modified_transaction = "s3a://spark/stock/transaction"
-s3_modified_transaction_checkpoint ="s3a://spark/stock/transaction/checkpoint"
+s3_modified_transaction_checkpoint ="s3a://spark/stock/transaction/checkpoint2"
 
 ######################################################################################
 ####################################URL_DATA##########################################

@@ -15,7 +15,7 @@ end_date = datetime.now() - timedelta(days=1) # Current date
 decoded_bytes_last_cut_date = base64.b64decode(sys.argv[1])
 decoded_string_last_cut_date = decoded_bytes_last_cut_date.decode('utf-8')
 
-start_date = datetime.strptime(decoded_string_last_cut_date.strip(), "%Y-%m-%d") + timedelta(days = 1) #end_date - timedelta(days=1)  # 100 days ago
+start_date = datetime.strptime(decoded_string_last_cut_date.strip(), "%Y-%m-%d") #+ timedelta(days = 1) #end_date - timedelta(days=1)  # 100 days ago
 
 params = {
     "adjusted": "true",
