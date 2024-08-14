@@ -59,15 +59,18 @@ spark =  SparkSession \
 parquet_path_metadata = c.s3_metadata_cleaned
 parquet_df_metadata = spark.read.parquet(parquet_path_metadata)
 
-bucket_name = 'spark'
-partition_prefix = f'stock/transaction/year={datetime.now().year}/'
-parquet_df_transacions = spark.read.parquet(f"s3a://{bucket_name}/" + get_max_month_path(list_folders_in_partition(bucket_name, partition_prefix)))
+try:
+    bucket_name = 'spark'
+    partition_prefix = f'stock/transaction/year={datetime.now().year}/'
+    parquet_df_transacions = spark.read.parquet(f"s3a://{bucket_name}/" + get_max_month_path(list_folders_in_partition(bucket_name, partition_prefix)))
 
-# Assuming `result_df` is your DataFrame
-max_transaction_date_df = parquet_df_transacions.agg(max("transaction_date").alias("max_transaction_date"))
+    # Assuming `result_df` is your DataFrame
+    max_transaction_date_df = parquet_df_transacions.agg(max("transaction_date").alias("max_transaction_date"))
 
 # Collect the result
-max_transaction_date = max_transaction_date_df.collect()[0]["max_transaction_date"]
+    max_transaction_date = max_transaction_date_df.collect()[0]["max_transaction_date"]
+except TypeError as e:
+    max_transaction_date = '2024-01-01'
 
 print(max_transaction_date)
 

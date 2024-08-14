@@ -37,7 +37,6 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
             row['date_time'] = date_string
             producer.send(topic=c.stock_data_topic, value=json.dumps(row).encode('utf-8'))
             print(row)
-
     except requests.RequestException as e:
         print(f"Failed to retrieve data for {date_string}: {e}")
     except Exception as e:
@@ -45,19 +44,20 @@ def fetch_and_produce_stock_data(producer, date: datetime) :
 
 if __name__ == "__main__":
 
-    print( '****************************************************'+ str(start_date) + '*****************************************************')
     producer = KafkaProducer(bootstrap_servers=c.kafka_cluster)
     current_date = start_date
-    request_count = 0
+    request_count = 1
 
     while current_date <= end_date:
         if request_count == REQUESTS_PER_MINUTE:
-            time.sleep(62)  # Wait for 60 seconds
-            request_count = 0
+            print("rate linit waiting 60 sec....")
+            time.sleep(60)
+            request_count = 1
 
         fetch_and_produce_stock_data(producer, current_date)
         request_count += 1
         current_date += timedelta(days=1)
+        print(request_count)
 
     producer.flush() 
     producer.close()
